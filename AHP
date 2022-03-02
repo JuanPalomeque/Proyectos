@@ -1,0 +1,121 @@
+# METODO MULTICRITERIO PRCESO ANALITICO JERARQUICO
+
+import numpy as np
+from itertools import combinations
+from tkinter import *
+
+
+alternativas = [] #'alternativa_1', 'alternativa_2', 'alternativa_3', 'alternativa_4']
+criterios = [] #'criterio_1', 'criterio_2', 'criterio_3']
+
+metodo_ahp = Tk()
+metodo_ahp.title('Método AHP')
+metodo_ahp.geometry('500x300')
+metodo_ahp.iconbitmap('logoFiuba.ico')
+
+
+entrada1 = Entry(metodo_ahp)
+entrada1.pack()
+entrada2 = Entry(metodo_ahp)
+entrada2.pack()
+
+titulo = Label(metodo_ahp)
+titulo.pack()
+
+def entrada_criterios():
+    leer = entrada1.get()
+    criterios.append(leer)
+
+def entrada_alternativas():
+    leer = entrada2.get()
+    alternativas.append(leer)
+
+boton1 = Button(metodo_ahp, text='ENTER1', command=entrada_criterios)
+boton1.pack()
+boton2 = Button(metodo_ahp, text='ENTER2', command=entrada_alternativas)
+boton2.pack()
+
+
+class ahp:
+
+    def __init__(self, vector):
+        self.vector = vector
+        
+
+    def calcular(self):
+        '''Calcula los pesos de los criterios o de las alternativas según sea la lista,
+            también calcula la consistencia'''
+
+        n = len(self.vector)
+        m = np.identity(n)
+
+        # Defino la función
+        def asignar( valor, opcion, i, j):
+            '''pone las comparaciones en la matriz'''
+            if opcion in 'Aa':
+                m[i - 1, j - 1] = valor
+            else:
+                m[i - 1, j - 1] = 1 / valor
+
+        # Consulto los pesos y los asigno los valores a la matriz con la funcion "asignar
+        '''temp = combinations(range(1,n+1), 2)
+        for i in list(temp):
+            p = int(input(f'Peso de {i[0]} vs {i[1]} : '))
+            p1 = input(f' {i[0]} ó {i[1]} : ')
+            asignar(p, p1, i[0], i[1])'''
+        asignar(7, 'A', 1, 2)
+        asignar(3, 'A', 1, 3)
+        asignar(3, 'B', 2, 3)
+
+
+        # Completo las inversas
+        for columna in range(n):
+            for fila in range(n):
+                if m[columna, fila] == 0:
+                    m[columna, fila] = round(1 / m[fila, columna], 3)
+
+        # Normalizo las columnas
+        m_normalizada = np.empty((n, n))
+        for columna in range(n):
+            for fila in range(n):
+                m_normalizada[fila, columna] = round(m[fila, columna] / np.array(m[:, columna]).sum(), 3)
+
+        # Calculo los e imprimo los pesos, sacando los promedios
+        pesos = []
+        for fila in range(n):
+            pesos.append(round(np.array(m_normalizada[fila]).sum() / n, 3))
+            print(f'El peso de {self.vector[fila]} es: {pesos[fila]}')
+
+
+        # Calculo los coeficientes de consistencia
+        alfa = np.dot(m, pesos).sum()
+        ci = (alfa - n) / (n - 1)
+        ri = 1.98 * (n - 2) / n
+
+        # Calculo e imprimo la consistencia
+        cr = ci / ri
+        print(f'La consistencia es de : {round(cr, 2)}')
+
+
+criterios_ahp = ahp(criterios)
+#criterios_ahp.calcular()
+
+alternativas_ahp = ahp(alternativas)
+#alternativas_ahp.calcular()
+
+salida = Label(metodo_ahp)
+salida.pack()
+def solucion():
+    criterios_ahp.calcular
+    salida['text'] = round(cr, 2)
+
+boton3 = Button(metodo_ahp, text='CALCULAR', command=criterios_ahp.calcular)
+boton3.pack()
+
+
+metodo_ahp.mainloop()
+
+
+
+
+
